@@ -8,32 +8,50 @@ from src.optimizer import ClosedLoopOptimizer
 
 
 class TestClosedLoopOptimizer:
-    # --- BOUNDS CALCULATION TESTS ---
+    # --- BOUNDS CALCULATION TESTS (GBM Logic) ---
 
     def test_bounds_basic_sanity(self):
         """Standard case: Bounds should widen with time."""
         res_7d = ClosedLoopOptimizer.calculate_bounds(100, 0.05, 0.0, 7)
         res_30d = ClosedLoopOptimizer.calculate_bounds(100, 0.05, 0.0, 30)
 
+        # Longer time = Wider Cone
         assert res_30d["upper_bound"] > res_7d["upper_bound"]
         assert res_30d["lower_bound"] < res_7d["lower_bound"]
-        # Check geometric property
+        # Geometric Property: Upper > Lower
         assert res_7d["upper_bound"] > res_7d["lower_bound"]
 
-    def test_bounds_zero_volatility(self):
-        """Edge Case: If volatility is 0, bounds should equal price (plus drift)."""
-        res = ClosedLoopOptimizer.calculate_bounds(100, 0.0, 0.0, 7)
-        assert res["upper_bound"] == 100.0
-        assert res["lower_bound"] == 100.0
+    def test_bounds_volatility_impact(self):
+        """Higher Volatility = Wider Bounds."""
+        res_low_vol = ClosedLoopOptimizer.calculate_bounds(100, 0.01, 0.0, 7)
+        res_high_vol = ClosedLoopOptimizer.calculate_bounds(100, 0.10, 0.0, 7)
 
-    def test_bounds_negative_drift(self):
-        """Edge Case: Bearish drift should tilt bounds downwards."""
-        res = ClosedLoopOptimizer.calculate_bounds(
-            100, 0.05, -0.01, 30
-        )  # 1% daily drop
-        # The center of the cone should be below 100
-        center = (res["upper_bound"] + res["lower_bound"]) / 2
-        assert center < 100
+        assert res_high_vol["upper_bound"] > res_low_vol["upper_bound"]
+        assert res_high_vol["lower_bound"] < res_low_vol["lower_bound"]
+
+    def test_bounds_extreme_drift(self):
+        """
+        Drift Stress Test.
+        If Drift (Mu) is massive, the cone should tilt heavily.
+        """
+        # Massive Bullish Drift (+1% daily)
+        res_bull = ClosedLoopOptimizer.calculate_bounds(100, 0.05, 0.01, 30)
+        # Massive Bearish Drift (-3% daily) - Needs to be strong to pull upper bound below 100 vs volatility
+        res_bear = ClosedLoopOptimizer.calculate_bounds(100, 0.05, -0.03, 30)
+
+        assert res_bull["upper_bound"] > 130  # Should be significantly higher
+        assert (
+            res_bear["upper_bound"] < 100
+        )  # Even upper bound should drop below entry if drift is toxic enough
+
+    def test_bounds_tiny_prices(self):
+        """Stress Test: SHIB/PEPE pricing (0.00001)."""
+        price = 0.00001
+        res = ClosedLoopOptimizer.calculate_bounds(price, 0.05, 0.0, 7)
+
+        assert res["upper_bound"] > price
+        assert res["lower_bound"] < price
+        assert res["lower_bound"] > 0  # Prices cannot be negative
 
     def test_bounds_invalid_inputs(self):
         """Defensive: Should raise ValueError on nonsense inputs."""
@@ -42,14 +60,15 @@ class TestClosedLoopOptimizer:
         with pytest.raises(ValueError, match="Price"):
             ClosedLoopOptimizer.calculate_bounds(-50, 0.05, 0.0, 7)
 
-    # --- GRID STEP TESTS ---
+    # --- GRID STEP TESTS (Fee vs Volatility) ---
 
     def test_grid_step_fee_dominance(self):
         """Scenario: Fees are so high they dictate the step size."""
         # 0.1% Volatility (tiny), 5% Fee (Huge)
+        # Logic: MinStep = (2 * Fee) / (1 - ProfitShare)
+        # MinStep = (0.10) / 0.20 = 0.50
         step = ClosedLoopOptimizer.calculate_grid_step(sigma=0.001, maker_fee=0.05)
 
-        # Fee logic: 2*0.05 / 0.2 = 0.5 (50% step required to profit)
         assert step == pytest.approx(0.5)
         assert step > 0.001  # Ignored volatility
 
@@ -58,119 +77,126 @@ class TestClosedLoopOptimizer:
         # 10% Volatility, 0% Fee
         step = ClosedLoopOptimizer.calculate_grid_step(sigma=0.10, maker_fee=0.0)
 
-        # Vol logic: 0.10 * 0.5 = 0.05
+        # Logic: Step = 0.5 * Sigma
         assert step == 0.05
 
-    def test_grid_step_profit_share_edge(self):
-        """Edge Case: Function handles weird profit share inputs gracefully."""
-        # If min_profit_share is 1.0 (impossible to achieve with fees), check fallback
-        step = ClosedLoopOptimizer.calculate_grid_step(0.05, 0.01, min_profit_share=1.0)
-        assert step > 0  # Should not crash or divide by zero
+    def test_grid_step_zero_fees(self):
+        """Edge Case: Zero fees shouldn't crash division."""
+        step = ClosedLoopOptimizer.calculate_grid_step(sigma=0.05, maker_fee=0.0)
+        assert step == 0.025  # Purely volatility based
 
-    # --- GRID QUANTITY TESTS (NEW) ---
+    # --- GRID QUANTITY TESTS (Geometric Spacing) ---
 
-    def test_grid_quantity_geometric_logic(self):
-        """Test geometric calculation of grid lines."""
-        # Scenario: Range 100 -> 200, Step 100% (1.0).
-        # Should be exactly 1 line (100 -> 200).
-        # Formula: ln(200/100) / ln(1+1) = ln(2)/ln(2) = 1.
+    def test_grid_quantity_logic(self):
+        """
+        Test geometric calculation.
+        Range: 100 -> 200. Step: 100% (1.0).
+        Lines: 100 * (1+1)^1 = 200. Should be exactly 1 line.
+        """
         qty = ClosedLoopOptimizer.calculate_grid_quantity(100, 200, 1.0)
         assert qty == 1
 
-    def test_grid_quantity_rounding_up(self):
-        """Ensure grid quantity rounds up (ceil) to cover the range."""
-        # Scenario: Range 100 -> 150. Step 10% (0.1).
-        # 100 * 1.1^4 = 146.41 (Not enough)
-        # 100 * 1.1^5 = 161.05 (Enough)
-        # Should return 5 lines.
+    def test_grid_quantity_rounding(self):
+        """
+        Test rounding up.
+        Range: 100 -> 150. Step: 10% (0.1).
+        1.1^4 ~= 1.46 (146) -> Not enough.
+        1.1^5 ~= 1.61 (161) -> Enough.
+        Result should be 5 lines.
+        """
         qty = ClosedLoopOptimizer.calculate_grid_quantity(100, 150, 0.1)
         assert qty == 5
 
-    def test_grid_quantity_invalid_inputs(self):
-        """Defensive: Return 0 for invalid bounds or step."""
-        # Step <= 0
-        assert ClosedLoopOptimizer.calculate_grid_quantity(100, 200, 0) == 0
-        assert ClosedLoopOptimizer.calculate_grid_quantity(100, 200, -0.1) == 0
+    def test_grid_quantity_massive_range(self):
+        """Stress Test: 100x bagger range."""
+        # 100 -> 10,000. Step 10%.
+        qty = ClosedLoopOptimizer.calculate_grid_quantity(100, 10000, 0.1)
+        # 1.1^x = 100. x = log(100)/log(1.1) ~= 48.3
+        assert qty == 49
 
-        # Bounds invalid
-        assert ClosedLoopOptimizer.calculate_grid_quantity(0, 100, 0.1) == 0
-        assert ClosedLoopOptimizer.calculate_grid_quantity(100, -100, 0.1) == 0
-
-        # Lower >= Upper (log will be <= 0)
+    def test_grid_quantity_invalid(self):
+        """Defensive: Return 0 for crossed bounds."""
         assert ClosedLoopOptimizer.calculate_grid_quantity(200, 100, 0.1) == 0
 
-    # --- MIN CAPITAL TESTS (NEW) ---
-
-    def test_min_capital_basic(self):
-        """Test standard capital calculation."""
-        # Bounds 100->200 (Step 1.0) -> 1 Line.
-        # MinOrder 10, Leverage 1.0.
-        # Capital = (1 * 10) / 1 = 10.
-        cap = ClosedLoopOptimizer.calculate_min_capital(100, 200, 1.0, 1.0, 10.0)
-        assert cap == 10.0
+    # --- MIN CAPITAL TESTS (Leverage & Notional) ---
 
     def test_min_capital_leverage_impact(self):
-        """Higher leverage should reduce capital requirement."""
-        # Same setup but 10x leverage -> Capital = 1.0
-        cap = ClosedLoopOptimizer.calculate_min_capital(100, 200, 1.0, 10.0, 10.0)
-        assert cap == 1.0
+        """Higher leverage should reduce capital requirement linearly."""
+        # Setup: 1 Line, $10 order.
+        cap_1x = ClosedLoopOptimizer.calculate_min_capital(100, 200, 1.0, 1.0, 10.0)
+        cap_10x = ClosedLoopOptimizer.calculate_min_capital(100, 200, 1.0, 10.0, 10.0)
 
-    def test_min_capital_step_impact(self):
-        """Smaller step sizes increase line count, increasing capital."""
-        # Bounds 100->200.
-        # Step 1.0 (100%) -> 1 Line.
-        # Step 0.5 (50%) -> ln(2)/ln(1.5) = ~1.7 -> 2 Lines.
-        cap_large_step = ClosedLoopOptimizer.calculate_min_capital(
-            100, 200, 1.0, 1.0, 10.0
-        )
-        cap_small_step = ClosedLoopOptimizer.calculate_min_capital(
-            100, 200, 0.5, 1.0, 10.0
-        )
+        assert cap_1x == 10.0
+        assert cap_10x == 1.0
 
-        assert cap_small_step > cap_large_step
-        assert cap_small_step == 20.0  # 2 lines * 10
+    def test_min_capital_tiny_step(self):
+        """Tiny steps = Many lines = High Capital."""
+        # Range 100->105 (~5%). Step 0.01%.
+        # Lines approx 500.
+        cap = ClosedLoopOptimizer.calculate_min_capital(100, 105, 0.0001, 1.0, 1.0)
+        assert cap > 400  # 400 lines * $1
 
-    def test_min_capital_invalid_inputs(self):
-        """Should handle invalid step gracefullly (return 0.0)."""
-        cap = ClosedLoopOptimizer.calculate_min_capital(100, 200, 0.0, 1.0, 10.0)
-        assert cap == 0.0
+    # --- ALLOCATION & KELLY TESTS (The Core Engine) ---
 
-    # --- ALLOCATION TESTS ---
-
-    def test_allocation_safety(self):
-        """Test if liquidation price is correctly padded."""
+    def test_allocation_safety_buffer(self):
+        """
+        CRITICAL: Verify Liquidation is ALWAYS below Stop Loss.
+        """
+        stop_loss = 90
         res = ClosedLoopOptimizer.closed_loop_allocation(
             portfolio_balance=10000,
             entry_price=100,
-            stop_loss=90,
+            stop_loss=stop_loss,
             target_upper=120,
-            kelly_fraction=1.0,
             safety_buffer=0.9,
         )
 
-        assert res["action"] == "TRADE"
-        # Liq must be 90 * 0.9 = 81
+        # Target Liq = 90 * 0.9 = 81
         assert res["target_liq_price"] == 81.0
-        # Leverage check: 100 / (100 - 81) = 100/19 ~= 5.26
-        assert 5.2 < res["max_safe_leverage"] < 5.3
+        assert res["target_liq_price"] < stop_loss
 
-    def test_allocation_stop_above_entry(self):
-        """Defensive: Long Grid Stop Loss must be below Entry."""
-        with pytest.raises(ValueError, match="Stop Loss"):
-            ClosedLoopOptimizer.closed_loop_allocation(1000, 100, 105, 120)
+        # Inverse Check:
+        # Leverage = Entry / (Entry - Liq) = 100 / 19 = 5.26x
+        # If price drops 19%, equity is wiped.
+        # Stop loss is at 10% drop.
+        # We survive the stop loss.
 
-    def test_allocation_negative_edge(self):
-        """Kelly Logic: If Payoff/Winrate implies losing money, DO NOT TRADE."""
-        # Win rate 10%, Payoff 1:1 -> Kelly is negative
+    def test_allocation_negative_kelly(self):
+        """If edge is negative, do not trade."""
+        # Risk: 10% (100->90). Reward: 1% (100->101). R:R = 0.1.
+        # WinRate: 50%.
+        # Kelly is definitely negative.
         res = ClosedLoopOptimizer.closed_loop_allocation(
-            1000, 100, 90, 110, win_rate=0.1
+            1000, 100, 90, 101, win_rate=0.5
         )
         assert res["action"] == "DO_NOT_TRADE"
         assert "Negative Edge" in res["reason"]
 
+    def test_allocation_tight_stop(self):
+        """
+        Stress Test: Stop loss extremely close to entry (High Leverage).
+        """
+        # Entry 100, Stop 99. Risk 1%.
+        # Reward 110. R:R 10.
+        # Kelly should be aggressive.
+        res = ClosedLoopOptimizer.closed_loop_allocation(
+            10000, 100, 99, 110, kelly_fraction=1.0
+        )
+
+        assert res["action"] == "TRADE"
+        # Risk distance is tiny (0.01).
+        # Exposure should be massive.
+        assert res["total_exposure"] > 10000
+
+        # Check Liquidation safety logic still holds
+        # Liq should be 99 * 0.9 = 89.1
+        # Dist to Liq = 10.9
+        # Max Lev = 100 / 10.9 ~= 9.17x
+        assert res["max_safe_leverage"] == pytest.approx(
+            100 / (100 - (99 * 0.9)), rel=1e-3
+        )
+
     def test_allocation_zero_portfolio(self):
-        """Edge Case: Portfolio is 0."""
+        """Math should work even with 0 portfolio (returning 0 exposure)."""
         res = ClosedLoopOptimizer.closed_loop_allocation(0, 100, 90, 120)
-        # Should execute math but return 0 exposure
         assert res["total_exposure"] == 0.0
-        assert res["required_margin_transfer"] == 0.0

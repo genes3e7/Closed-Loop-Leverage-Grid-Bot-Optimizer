@@ -38,6 +38,12 @@ def main():
         help="Total portfolio size/bankroll. If omitted, calculates the MINIMUM REQUIRED capital.",
     )
 
+    parser.add_argument(
+        "--neutral",
+        action="store_true",
+        help="Force the grid to be Neutral (ignore historical trend/drift). Useful if you expect a flat market.",
+    )
+
     args = parser.parse_args()
 
     # Pass control to the Logic Controller in src/
@@ -46,6 +52,7 @@ def main():
         exchange=args.exchange,
         days=args.days,
         portfolio=args.portfolio,
+        is_neutral=args.neutral,
     )
 
 

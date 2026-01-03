@@ -37,9 +37,10 @@ import main
 with patch('main.run_analysis') as mock_run:
     # Scenario: Run WITHOUT specifying --portfolio.
     # Expectation: portfolio arg should be passed as None to controller.
+    # Note: is_neutral defaults to False in argparse.
     sys.argv = ['main.py', 'BTC', '--days', '5']
     main.main()
-    mock_run.assert_called_with(ticker='BTC', exchange='binance', days=5, portfolio=None)
+    mock_run.assert_called_with(ticker='BTC', exchange='binance', days=5, portfolio=None, is_neutral=False)
 """
     result = subprocess.run(
         [sys.executable, "-c", code], capture_output=True, text=True

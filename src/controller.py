@@ -32,7 +32,13 @@ def resolve_exchange(exchange_name: str) -> str:
     return exchange_name
 
 
-def run_analysis(ticker: str, exchange: str, days: int, portfolio: float = None):
+def run_analysis(
+    ticker: str,
+    exchange: str,
+    days: int,
+    portfolio: float = None,
+    is_neutral: bool = False,
+):
     """
     Main Logic Flow: Sniff -> Analyze -> Optimize -> Report
     """
@@ -79,6 +85,11 @@ def run_analysis(ticker: str, exchange: str, days: int, portfolio: float = None)
         analyzer = MarketAnalyzer(clean_ticker)
         analyzer.fetch_history(days=90)
         metrics = analyzer.calculate_metrics()
+
+        # Override Drift if Neutral Mode requested
+        if is_neutral:
+            metrics["mu_daily"] = 0.0
+            print("   ℹ️  NEUTRAL MODE ACTIVE: Ignoring historical drift.")
 
         # Print Intel Report
         print_market_intel(market_intel, metrics)

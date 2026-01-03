@@ -28,6 +28,12 @@ def print_strategy_report(
     print(f"CURRENT PRICE:     ${allocation['entry_price']:.2f}")
     print("-" * 40)
 
+    # Warning for Bearish Drift
+    if bounds["upper_bound"] < allocation["entry_price"]:
+        print("⚠️  WARNING: Grid is entirely BELOW current price!")
+        print("    (Historical trend is bearish. Use --neutral to center grid.)")
+        print("-" * 40)
+
     print(
         f"1. GRID BOUNDS:    ${bounds['lower_bound']:.2f} to ${bounds['upper_bound']:.2f}"
     )

@@ -38,6 +38,28 @@ If your exchange is **not** on this list (or not in your local library version),
 1. It will fallback to **Binance** to fetch general Funding Rates and Spread.  
 2. It will ask you to **manually input** your Maker/Taker fees.
 
+## **🔍 Output Legend & Troubleshooting**
+
+When running the report, the optimizer might refuse to generate parameters. Here is how to interpret those signals.
+
+### **⛔ STOP: Negative Edge/Kelly**
+
+This is a mathematical safety trigger. It means **you are statistically likely to lose money** on this trade configuration.
+
+* **What is "Kelly"?** The Kelly Criterion is a formula used to determine the optimal bet size. If the result is zero or negative, the optimal strategy is to **bet nothing**.  
+* **The Math:**$$Kelly \\% \= P\_{win} \- \\frac{1 \- P\_{win}}{\\text{Reward-to-Risk Ratio}}$$  
+* **Why it happens:**  
+  * **Risk is too high:** Your Stop Loss (derived from volatility) is too far away compared to your Take Profit target (Upper Bound).  
+  * **Drift is negative:** The asset is trending downwards, but you are trying to open a Long Grid.  
+* **How to Fix:**  
+  1. **Wait:** Market conditions are currently unfavorable.  
+  2. **Increase Duration:** Longer runtimes expand the upper bound (Reward), potentially fixing the ratio.
+
+### **⛔ STOP: Invalid Risk Distance**
+
+* **Meaning:** The calculated Stop Loss is **above** the Entry Price.  
+* **Why it happens:** Extreme volatility or logic error in custom bounds. The bot cannot go Long if the stop loss is higher than the current price.
+
 ## **🧪 Testing**
 
 We use pytest for unit and integration testing. To run the full suite:
