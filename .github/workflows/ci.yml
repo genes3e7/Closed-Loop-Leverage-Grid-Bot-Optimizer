@@ -117,7 +117,7 @@ jobs:
         fi
 
     - name: Test with Pytest
-      run: pytest tests/
+      run: pytest
 
     - name: Record Success
       if: success()
@@ -134,8 +134,13 @@ jobs:
   finalize-updates:
     needs: [test-matrix, compile-deps]
     runs-on: ubuntu-latest
-    # Only run if compile-deps SUCCEEDED (artifacts exist) and at least one matrix job finished
-    if: always() && needs.compile-deps.result == 'success'
+    # Run if:
+    # 1. Always (so we evaluate the condition even if previous jobs failed/skipped)
+    # 2. compile-deps succeeded (we have artifacts to commit)
+    # 3. test-matrix succeeded (at least one matrix job ran successfully, though usually this checks the aggregate result of the matrix job group. 
+    #    Note: 'needs.test-matrix.result' will be 'failure' if ANY matrix job failed if fail-fast is true, or if ANY failed after all completed if fail-fast is false. 
+    #    However, to ensure we only commit if tests passed, we check for success.)
+    if: always() && needs.compile-deps.result == 'success' && needs.test-matrix.result == 'success'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -178,7 +183,12 @@ jobs:
     # 4. Update README Badge
     - name: Update README Badge
       run: |
-        sed -i -E "s/badge\/python-[0-9.]+(.*)-blue/badge\/python-${{ env.MIN_VER }}_to_${{ env.MAX_VER }}-blue/" README.md
+        if grep -qE "badge/python-[0-9.]+.*-blue" README.md; then
+          sed -i -E "s/badge\/python-[0-9.]+(.*)-blue/badge\/python-${{ env.MIN_VER }}_to_${{ env.MAX_VER }}-blue/" README.md
+          echo "README badge updated successfully"
+        else
+          echo "::warning::Python version badge not found in README.md"
+        fi
 
     # 5. Lint & Format
     - name: Ruff Format & Fix
@@ -202,7 +212,8 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         
-        git add .
+        # Explicitly stage only relevant files
+        git add README.md requirements*.txt requirements*.in "*.py" || true
         
         if git diff --staged --quiet; then
           echo "No changes to commit."
