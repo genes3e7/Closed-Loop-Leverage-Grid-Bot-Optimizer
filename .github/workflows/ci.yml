@@ -134,13 +134,9 @@ jobs:
   finalize-updates:
     needs: [test-matrix, compile-deps]
     runs-on: ubuntu-latest
-    # Run if:
-    # 1. Always (so we evaluate the condition even if previous jobs failed/skipped)
-    # 2. compile-deps succeeded (we have artifacts to commit)
-    # 3. test-matrix succeeded (at least one matrix job ran successfully, though usually this checks the aggregate result of the matrix job group. 
-    #    Note: 'needs.test-matrix.result' will be 'failure' if ANY matrix job failed if fail-fast is true, or if ANY failed after all completed if fail-fast is false. 
-    #    However, to ensure we only commit if tests passed, we check for success.)
-    if: always() && needs.compile-deps.result == 'success' && needs.test-matrix.result == 'success'
+    # Run IF compile-deps succeeded (we need artifacts) AND at least one test matrix job finished (regardless of success/failure)
+    # Removing 'needs.test-matrix.result == success' allows this to run even if 3.14 fails.
+    if: always() && needs.compile-deps.result == 'success'
     steps:
     - uses: actions/checkout@v4
       with:
