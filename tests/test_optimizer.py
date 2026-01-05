@@ -87,7 +87,7 @@ class TestClosedLoopOptimizer:
 
     # --- GRID QUANTITY TESTS (Geometric Spacing) ---
 
-    def test_grid_quantity_logic(self):
+    def test_grid_quantity_geometric_logic(self):
         """
         Test geometric calculation.
         Range: 100 -> 200. Step: 100% (1.0).

@@ -1,37 +1,50 @@
 """
-Build Script (Project Automation).
-Runs Linting, Tests, and Stress Checks.
+Script to compile the project into a standalone executable using PyInstaller.
 """
 
 import subprocess
 import sys
+import shutil
+import os
 
 
-def run_command(command, description):
-    print(f"--- Running {description} ---")
+def check_pyinstaller():
+    """Checks if PyInstaller is installed."""
+    try:
+        import PyInstaller
+
+        print("✅ PyInstaller is installed.")
+    except ImportError:
+        print("❌ PyInstaller not found. Installing...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"])
+
+
+def build():
+    print("\n🔨 Building Executable...")
+
+    # Clean previous builds
+    if os.path.exists("build"):
+        shutil.rmtree("build")
+    if os.path.exists("dist"):
+        shutil.rmtree("dist")
+    if os.path.exists("GridOptimizer.spec"):
+        os.remove("GridOptimizer.spec")
+
+    # PyInstaller Command
+    # --onefile: Bundle everything into a single .exe
+    # --name: Name of the output file
+    # --add-data: (Optional) If you had config files, you'd add them here.
+    # main.py: Your entry point
+
+    command = ["pyinstaller", "--onefile", "--name=GridOptimizer", "--clean", "main.py"]
+
     try:
         subprocess.check_call(command, shell=True)
-        print(f"✅ {description} Passed.\n")
+        print("\n🎉 Build Success! Executable is located at: dist/GridOptimizer.exe")
     except subprocess.CalledProcessError:
-        print(f"❌ {description} FAILED.")
-        sys.exit(1)
-
-
-def main():
-    print("👷 STARTING BUILD PROCESS...\n")
-
-    # 1. Install Dependencies (Optional, for CI mostly)
-    # run_command("pip install -r requirements.txt", "Dependency Check")
-
-    # 2. Run Ruff (Linting)
-    # Assuming ruff is installed
-    run_command("ruff check src/ tests/", "Linter (Ruff)")
-
-    # 3. Run Pytest
-    run_command("pytest tests/ -v", "Unit & Integration Tests")
-
-    print("🎉 BUILD SUCCESSFUL! Project is stable.")
+        print("\n❌ Build Failed.")
 
 
 if __name__ == "__main__":
-    main()
+    check_pyinstaller()
+    build()

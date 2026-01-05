@@ -104,6 +104,25 @@ def run_analysis(
         bounds = opt.calculate_bounds(
             current_price, metrics["sigma_daily"], metrics["mu_daily"], days
         )
+
+        # --- AUTO-RECOVERY: Detect Bearish Drift ---
+        # If the historical trend is so bearish that the grid is projected entirely
+        # below the current price, we force Neutral Mode to center the grid.
+        if bounds["upper_bound"] < current_price:
+            print(
+                "\n   ⚠️  WARNING: Detected Bearish Drift (Upper Bound < Current Price)."
+            )
+            print(
+                "   -> 🛡️  Automatically switching to NEUTRAL MODE (Drift = 0) to center the grid."
+            )
+
+            # Force neutral drift
+            metrics["mu_daily"] = 0.0
+            # Recalculate bounds
+            bounds = opt.calculate_bounds(
+                current_price, metrics["sigma_daily"], metrics["mu_daily"], days
+            )
+
         stop_loss = bounds["lower_bound"] - (1.5 * metrics["atr"])
 
         # B. Grid Step & Quantity

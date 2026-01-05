@@ -1,0 +1,5 @@
+# requirements-dev.in
+-c requirements.txt
+
+pytest
+ruff

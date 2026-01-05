@@ -32,8 +32,6 @@ charset-normalizer==3.4.4
     # via requests
 coincurve==21.0.0
     # via ccxt
-colorama==0.4.6
-    # via pytest
 cryptography==46.0.3
     # via ccxt
 curl-cffi==0.13.0
@@ -48,8 +46,6 @@ idna==3.11
     # via
     #   requests
     #   yarl
-iniconfig==2.3.0
-    # via pytest
 multidict==6.7.0
     # via
     #   aiohttp
@@ -61,8 +57,6 @@ numpy==2.4.0
     #   -r requirements.in
     #   pandas
     #   yfinance
-packaging==25.0
-    # via pytest
 pandas==2.3.3
     # via
     #   -r requirements.in
@@ -71,8 +65,6 @@ peewee==3.18.3
     # via yfinance
 platformdirs==4.5.1
     # via yfinance
-pluggy==1.6.0
-    # via pytest
 propcache==0.4.1
     # via
     #   aiohttp
@@ -83,10 +75,6 @@ pycares==4.11.0
     # via aiodns
 pycparser==2.23
     # via cffi
-pygments==2.19.2
-    # via pytest
-pytest==9.0.2
-    # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via pandas
 pytz==2025.2
@@ -97,8 +85,6 @@ requests==2.32.5
     # via
     #   ccxt
     #   yfinance
-ruff==0.14.10
-    # via -r requirements.in
 six==1.17.0
     # via python-dateutil
 soupsieve==2.8.1
