@@ -30,7 +30,7 @@ class MarketAnalyzer:
             self.data = yf.download(symbol, period=f"{days}d", progress=False)
 
             if self.data.empty:
-                logger.info(
+                logger.warning(
                     "Note: '%s' data not found. Defaulting to raw ticker '%s'...",
                     symbol,
                     self.ticker,
@@ -49,7 +49,7 @@ class MarketAnalyzer:
             # We catch specific library errors or re-raise
             # If it is already a ValueError (from above), re-raise it directly
             if isinstance(e, ValueError):
-                raise e
+                raise
             raise RuntimeError(f"❌ Failed to fetch market data: {str(e)}") from e
 
     def calculate_metrics(self) -> dict[str, float]:
