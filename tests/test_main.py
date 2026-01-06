@@ -48,9 +48,7 @@ with patch('main.run_analysis') as mock_run:
         is_neutral=False
     )
 """
-    result = subprocess.run(
-        [sys.executable, "-c", code], capture_output=True, text=True
-    )
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
 
     if result.returncode != 0:
         print("Subprocess Error Output:")

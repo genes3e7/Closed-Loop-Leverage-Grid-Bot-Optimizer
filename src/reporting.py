@@ -34,10 +34,7 @@ def print_strategy_report(
         print("    (Historical trend is bearish. Use --neutral to center grid.)")
         print("-" * 40)
 
-    print(
-        f"1. GRID BOUNDS:    ${bounds['lower_bound']:.2f} to "
-        f"${bounds['upper_bound']:.2f}"
-    )
+    print(f"1. GRID BOUNDS:    ${bounds['lower_bound']:.2f} to ${bounds['upper_bound']:.2f}")
     print(f"2. STOP LOSS:      ${stop_loss:.2f} (Invalidation)")
     print(f"3. GRID QUANTITY:  {grid_quantity} Lines (Step: ~{grid_step * 100:.3f}%)")
     print("-" * 40)

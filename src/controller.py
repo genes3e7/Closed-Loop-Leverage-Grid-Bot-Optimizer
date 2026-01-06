@@ -3,22 +3,22 @@ Orchestrator for the Closed Loop System.
 Connects Sniffer, Analyzer, and Optimizer.
 """
 
-import sys
 import difflib
+import sys
+
 import ccxt
+
 from .analyzer import MarketAnalyzer
-from .sniffer import ExchangeSniffer
 from .optimizer import ClosedLoopOptimizer
-from .reporting import print_strategy_report, print_market_intel
+from .reporting import print_market_intel, print_strategy_report
+from .sniffer import ExchangeSniffer
 
 
 def resolve_exchange(exchange_name: str) -> str:
     """Auto-corrects exchange name typos."""
     if exchange_name not in ccxt.exchanges:
         # Increased cutoff to 0.85 to prevent 'pionex' -> 'poloniex' false positives
-        matches = difflib.get_close_matches(
-            exchange_name, ccxt.exchanges, n=1, cutoff=0.85
-        )
+        matches = difflib.get_close_matches(exchange_name, ccxt.exchanges, n=1, cutoff=0.85)
         if matches:
             print(
                 f"⚠️ Warning: Exchange '{exchange_name}' not found. "
@@ -60,12 +60,8 @@ def run_analysis(
 
             while True:
                 try:
-                    maker_input = input(
-                        f"   Enter Maker Fee (%) for {exchange} (e.g. 0.05): "
-                    )
-                    taker_input = input(
-                        f"   Enter Taker Fee (%) for {exchange} (e.g. 0.05): "
-                    )
+                    maker_input = input(f"   Enter Maker Fee (%) for {exchange} (e.g. 0.05): ")
+                    taker_input = input(f"   Enter Taker Fee (%) for {exchange} (e.g. 0.05): ")
 
                     # Convert percentage to decimal (0.05% -> 0.0005)
                     # Input validation implicit here (float conversion will raise ValueError)
@@ -78,9 +74,7 @@ def run_analysis(
                     )
                     break  # Exit loop on success
                 except ValueError:
-                    print(
-                        "   ❌ Invalid input. Please enter valid numeric values (e.g. 0.05)."
-                    )
+                    print("   ❌ Invalid input. Please enter valid numeric values (e.g. 0.05).")
 
         # 3. ANALYZE (Historical Volatility)
         clean_ticker = ticker.split("/")[0]  # 'BTC/USDT' -> 'BTC'
@@ -111,12 +105,9 @@ def run_analysis(
         # If the historical trend is so bearish that the grid is projected entirely
         # below the current price, we force Neutral Mode to center the grid.
         if bounds["upper_bound"] < current_price:
+            print("\n   ⚠️  WARNING: Detected Bearish Drift (Upper Bound < Current Price).")
             print(
-                "\n   ⚠️  WARNING: Detected Bearish Drift (Upper Bound < Current Price)."
-            )
-            print(
-                "   -> 🛡️  Automatically switching to NEUTRAL MODE (Drift = 0) "
-                "to center the grid."
+                "   -> 🛡️  Automatically switching to NEUTRAL MODE (Drift = 0) to center the grid."
             )
 
             # Force neutral drift
@@ -129,9 +120,7 @@ def run_analysis(
         stop_loss = bounds["lower_bound"] - (1.5 * metrics["atr"])
 
         # B. Grid Step & Quantity
-        grid_step = opt.calculate_grid_step(
-            metrics["sigma_daily"], market_intel["maker_fee"]
-        )
+        grid_step = opt.calculate_grid_step(metrics["sigma_daily"], market_intel["maker_fee"])
         grid_quantity = opt.calculate_grid_quantity(
             bounds["lower_bound"], bounds["upper_bound"], grid_step
         )

@@ -3,9 +3,11 @@ Unit tests for src/analyzer.py
 Focus: Data fetching, handling NaNs/Zeros, and calculating statistical metrics.
 """
 
-import pytest
-import pandas as pd
 from unittest.mock import patch
+
+import pandas as pd
+import pytest
+
 from src.analyzer import MarketAnalyzer
 
 

@@ -2,11 +2,11 @@
 Script to compile the project into a standalone executable using PyInstaller.
 """
 
+import importlib.util
+import os
+import shutil
 import subprocess
 import sys
-import shutil
-import os
-import importlib.util
 
 
 def check_pyinstaller():

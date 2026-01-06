@@ -2,10 +2,9 @@
 Module for historical market analysis (Volatility, ATR, Drift).
 """
 
-import yfinance as yf
 import numpy as np
 import pandas as pd
-from typing import Dict
+import yfinance as yf
 
 
 class MarketAnalyzer:
@@ -21,9 +20,7 @@ class MarketAnalyzer:
         """Fetches historical data from YFinance with error handling."""
         try:
             # Add 'd' suffix if missing for yfinance crypto format usually
-            symbol = (
-                self.ticker if self.ticker.endswith("-USD") else f"{self.ticker}-USD"
-            )
+            symbol = self.ticker if self.ticker.endswith("-USD") else f"{self.ticker}-USD"
 
             # Defensive: Fetch a bit more to ensure we have valid periods for ATR
             self.data = yf.download(symbol, period=f"{days}d", progress=False)
@@ -50,7 +47,7 @@ class MarketAnalyzer:
                 raise e
             raise RuntimeError(f"❌ Failed to fetch market data: {str(e)}") from e
 
-    def calculate_metrics(self) -> Dict[str, float]:
+    def calculate_metrics(self) -> dict[str, float]:
         """
         Calculates Volatility, Drift, and ATR.
         """

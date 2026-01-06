@@ -3,9 +3,10 @@ Core Logic: The Closed Loop Optimizer.
 Combines Analyzer (Volatility) and Sniffer (Fees) to output Bot Params.
 """
 
-import numpy as np
 import math
-from typing import Dict, Any
+from typing import Any
+
+import numpy as np
 
 
 class ClosedLoopOptimizer:
@@ -20,7 +21,7 @@ class ClosedLoopOptimizer:
         mu: float,
         days: int,
         confidence_z: float = 2.0,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """
         Calculates Drift-Adjusted Volatility Cone.
         Range = Price * exp( (mu - 0.5*sigma^2)*t +/- z*sigma*sqrt(t) )
@@ -39,9 +40,7 @@ class ClosedLoopOptimizer:
         return {"upper_bound": upper, "lower_bound": lower}
 
     @staticmethod
-    def calculate_grid_step(
-        sigma: float, maker_fee: float, min_profit_share: float = 0.8
-    ) -> float:
+    def calculate_grid_step(sigma: float, maker_fee: float, min_profit_share: float = 0.8) -> float:
         """
         Calculates optimal grid spacing accounting for Fee Drag.
         Constraint: Fees must not eat more than (1 - min_profit_share) of profit.
@@ -61,9 +60,7 @@ class ClosedLoopOptimizer:
         return max(min_fee_step, vol_step)
 
     @staticmethod
-    def calculate_grid_quantity(
-        lower_bound: float, upper_bound: float, grid_step: float
-    ) -> int:
+    def calculate_grid_quantity(lower_bound: float, upper_bound: float, grid_step: float) -> int:
         """
         Calculates the number of grid lines (Geometric).
         N = ln(Upper/Lower) / ln(1 + step)
@@ -90,9 +87,7 @@ class ClosedLoopOptimizer:
         Calculates the minimum capital required to run the grid.
         Formula: (Lines * MinOrderSize) / Leverage
         """
-        num_lines = ClosedLoopOptimizer.calculate_grid_quantity(
-            lower_bound, upper_bound, grid_step
-        )
+        num_lines = ClosedLoopOptimizer.calculate_grid_quantity(lower_bound, upper_bound, grid_step)
 
         # Total Notional required to place min order on every line
         total_notional = num_lines * min_order_size
@@ -111,7 +106,7 @@ class ClosedLoopOptimizer:
         win_rate: float = 0.55,
         kelly_fraction: float = 0.5,
         safety_buffer: float = 0.90,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Derives the 'Closed Loop' parameters: Active/Passive Margin split.
         """

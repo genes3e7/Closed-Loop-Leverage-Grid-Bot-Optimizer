@@ -3,6 +3,7 @@ Closed Loop Bot Optimizer - Entry Point.
 """
 
 import argparse
+
 from src.controller import run_analysis
 
 
@@ -45,8 +46,7 @@ def main():
         type=float,
         default=None,
         help=(
-            "Total portfolio size/bankroll. If omitted, calculates the MINIMUM "
-            "REQUIRED capital."
+            "Total portfolio size/bankroll. If omitted, calculates the MINIMUM REQUIRED capital."
         ),
     )
 
