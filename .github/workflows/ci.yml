@@ -134,13 +134,8 @@ jobs:
   finalize-updates:
     needs: [test-matrix, compile-deps]
     runs-on: ubuntu-latest
-    # Run if:
-    # 1. Always (so we evaluate the condition even if previous jobs failed/skipped)
-    # 2. compile-deps succeeded (we have artifacts to commit)
-    # 3. test-matrix succeeded (at least one matrix job ran successfully, though usually this checks the aggregate result of the matrix job group. 
-    #    Note: 'needs.test-matrix.result' will be 'failure' if ANY matrix job failed if fail-fast is true, or if ANY failed after all completed if fail-fast is false. 
-    #    However, to ensure we only commit if tests passed, we check for success.)
-    if: always() && needs.compile-deps.result == 'success' && needs.test-matrix.result == 'success'
+    # Run IF compile-deps succeeded (we have artifacts to commit) AND allow running even if test-matrix failed (for partial badge updates)
+    if: always() && needs.compile-deps.result == 'success'
     steps:
     - uses: actions/checkout@v4
       with:
@@ -212,8 +207,8 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         
-        # Explicitly stage only relevant files
-        git add README.md requirements*.txt requirements*.in "*.py" || true
+        # Explicitly stage only relevant files using update flag to avoid staging untracked files
+        git add -u README.md requirements*.txt requirements*.in "*.py" || true
         
         if git diff --staged --quiet; then
           echo "No changes to commit."
