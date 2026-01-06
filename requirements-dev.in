@@ -1,5 +1,6 @@
 # requirements-dev.in
 -c requirements.txt
 
+pyinstaller
 pytest
 ruff

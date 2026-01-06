@@ -6,15 +6,14 @@ import subprocess
 import sys
 import shutil
 import os
+import importlib.util
 
 
 def check_pyinstaller():
     """Checks if PyInstaller is installed."""
-    try:
-        import PyInstaller
-
+    if importlib.util.find_spec("PyInstaller") is not None:
         print("✅ PyInstaller is installed.")
-    except ImportError:
+    else:
         print("❌ PyInstaller not found. Installing...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"])
 
