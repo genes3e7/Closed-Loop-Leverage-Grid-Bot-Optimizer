@@ -13,8 +13,8 @@ from src.sniffer import ExchangeSniffer
 @pytest.fixture
 def mock_yfinance_data():
     """Create a mock DataFrame for YFinance."""
-    import numpy as np
     import pandas as pd
+    import numpy as np
 
     dates = pd.date_range(start="2023-01-01", periods=100)
     # Create a random walk

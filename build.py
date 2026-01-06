@@ -38,7 +38,8 @@ def build():
     command = ["pyinstaller", "--onefile", "--name=GridOptimizer", "--clean", "main.py"]
 
     try:
-        subprocess.check_call(command, shell=True)
+        # Removed shell=True for security
+        subprocess.check_call(command)
         print("\n🎉 Build Success! Executable is located at: dist/GridOptimizer.exe")
     except subprocess.CalledProcessError:
         print("\n❌ Build Failed.")

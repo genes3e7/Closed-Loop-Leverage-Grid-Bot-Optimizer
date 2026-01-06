@@ -208,8 +208,12 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         
-        # Explicitly stage only relevant files using update flag to avoid staging untracked files
-        git add -u README.md requirements*.txt requirements*.in "*.py" || true
+        # Explicitly stage known config files that might be new or modified
+        git add README.md requirements*.txt requirements*.in || true
+        
+        # Update-only stage for tracked files to catch ruff fixes in .py files
+        # This prevents adding untracked/new python files accidentally
+        git add -u || true
         
         if git diff --staged --quiet; then
           echo "No changes to commit."
