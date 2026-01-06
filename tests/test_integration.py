@@ -2,8 +2,10 @@
 Integration tests mocking external APIs.
 """
 
-import pytest
 from unittest.mock import patch
+
+import pytest
+
 from src.analyzer import MarketAnalyzer
 from src.sniffer import ExchangeSniffer
 
@@ -11,8 +13,8 @@ from src.sniffer import ExchangeSniffer
 @pytest.fixture
 def mock_yfinance_data():
     """Create a mock DataFrame for YFinance."""
-    import pandas as pd
     import numpy as np
+    import pandas as pd
 
     dates = pd.date_range(start="2023-01-01", periods=100)
     # Create a random walk

@@ -2,19 +2,18 @@
 Script to compile the project into a standalone executable using PyInstaller.
 """
 
+import importlib.util
+import os
+import shutil
 import subprocess
 import sys
-import shutil
-import os
 
 
 def check_pyinstaller():
     """Checks if PyInstaller is installed."""
-    try:
-        import PyInstaller
-
+    if importlib.util.find_spec("PyInstaller") is not None:
         print("✅ PyInstaller is installed.")
-    except ImportError:
+    else:
         print("❌ PyInstaller not found. Installing...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"])
 
@@ -39,7 +38,8 @@ def build():
     command = ["pyinstaller", "--onefile", "--name=GridOptimizer", "--clean", "main.py"]
 
     try:
-        subprocess.check_call(command, shell=True)
+        # Removed shell=True for security
+        subprocess.check_call(command)
         print("\n🎉 Build Success! Executable is located at: dist/GridOptimizer.exe")
     except subprocess.CalledProcessError:
         print("\n❌ Build Failed.")

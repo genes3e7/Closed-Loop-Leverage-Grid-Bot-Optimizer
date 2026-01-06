@@ -34,9 +34,7 @@ def print_strategy_report(
         print("    (Historical trend is bearish. Use --neutral to center grid.)")
         print("-" * 40)
 
-    print(
-        f"1. GRID BOUNDS:    ${bounds['lower_bound']:.2f} to ${bounds['upper_bound']:.2f}"
-    )
+    print(f"1. GRID BOUNDS:    ${bounds['lower_bound']:.2f} to ${bounds['upper_bound']:.2f}")
     print(f"2. STOP LOSS:      ${stop_loss:.2f} (Invalidation)")
     print(f"3. GRID QUANTITY:  {grid_quantity} Lines (Step: ~{grid_step * 100:.3f}%)")
     print("-" * 40)
@@ -59,8 +57,10 @@ def print_strategy_report(
 def print_market_intel(fee_data: dict, volatility_metrics: dict):
     """Prints the initial data gathering status."""
     print(
-        f"✅ SNIFFER: Found Fees (Mk: {fee_data['maker_fee']:.4f}) | Spread: {fee_data['spread_pct']:.4f}%"
+        f"✅ SNIFFER: Found Fees (Mk: {fee_data['maker_fee']:.4f}) | "
+        f"Spread: {fee_data['spread_pct']:.4f}%"
     )
     print(
-        f"✅ ANALYZER: Volatility {volatility_metrics['sigma_daily'] * 100:.2f}% | Drift {volatility_metrics['mu_daily'] * 100:.3f}%"
+        f"✅ ANALYZER: Volatility {volatility_metrics['sigma_daily'] * 100:.2f}% | "
+        f"Drift {volatility_metrics['mu_daily'] * 100:.3f}%"
     )

@@ -4,6 +4,7 @@ Focus: Mathematical edge cases, defensive logic, and boundary testing.
 """
 
 import pytest
+
 from src.optimizer import ClosedLoopOptimizer
 
 
@@ -36,7 +37,8 @@ class TestClosedLoopOptimizer:
         """
         # Massive Bullish Drift (+1% daily)
         res_bull = ClosedLoopOptimizer.calculate_bounds(100, 0.05, 0.01, 30)
-        # Massive Bearish Drift (-3% daily) - Needs to be strong to pull upper bound below 100 vs volatility
+        # Massive Bearish Drift (-3% daily)
+        # Needs to be strong to pull upper bound below 100 vs volatility
         res_bear = ClosedLoopOptimizer.calculate_bounds(100, 0.05, -0.03, 30)
 
         assert res_bull["upper_bound"] > 130  # Should be significantly higher
@@ -166,9 +168,7 @@ class TestClosedLoopOptimizer:
         # Risk: 10% (100->90). Reward: 1% (100->101). R:R = 0.1.
         # WinRate: 50%.
         # Kelly is definitely negative.
-        res = ClosedLoopOptimizer.closed_loop_allocation(
-            1000, 100, 90, 101, win_rate=0.5
-        )
+        res = ClosedLoopOptimizer.closed_loop_allocation(1000, 100, 90, 101, win_rate=0.5)
         assert res["action"] == "DO_NOT_TRADE"
         assert "Negative Edge" in res["reason"]
 
@@ -179,9 +179,7 @@ class TestClosedLoopOptimizer:
         # Entry 100, Stop 99. Risk 1%.
         # Reward 110. R:R 10.
         # Kelly should be aggressive.
-        res = ClosedLoopOptimizer.closed_loop_allocation(
-            10000, 100, 99, 110, kelly_fraction=1.0
-        )
+        res = ClosedLoopOptimizer.closed_loop_allocation(10000, 100, 99, 110, kelly_fraction=1.0)
 
         assert res["action"] == "TRADE"
         # Risk distance is tiny (0.01).
@@ -192,9 +190,7 @@ class TestClosedLoopOptimizer:
         # Liq should be 99 * 0.9 = 89.1
         # Dist to Liq = 10.9
         # Max Lev = 100 / 10.9 ~= 9.17x
-        assert res["max_safe_leverage"] == pytest.approx(
-            100 / (100 - (99 * 0.9)), rel=1e-3
-        )
+        assert res["max_safe_leverage"] == pytest.approx(100 / (100 - (99 * 0.9)), rel=1e-3)
 
     def test_allocation_zero_portfolio(self):
         """Math should work even with 0 portfolio (returning 0 exposure)."""

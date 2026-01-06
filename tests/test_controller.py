@@ -3,8 +3,10 @@ Integration tests for src/controller.py
 Focus: Orchestration flow and typo correction.
 """
 
-import pytest
 from unittest.mock import patch
+
+import pytest
+
 from src.controller import resolve_exchange, run_analysis
 
 

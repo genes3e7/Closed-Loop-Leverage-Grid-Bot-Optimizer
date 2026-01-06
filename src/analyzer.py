@@ -2,10 +2,13 @@
 Module for historical market analysis (Volatility, ATR, Drift).
 """
 
-import yfinance as yf
+import logging
+
 import numpy as np
 import pandas as pd
-from typing import Dict
+import yfinance as yf
+
+logger = logging.getLogger(__name__)
 
 
 class MarketAnalyzer:
@@ -21,16 +24,16 @@ class MarketAnalyzer:
         """Fetches historical data from YFinance with error handling."""
         try:
             # Add 'd' suffix if missing for yfinance crypto format usually
-            symbol = (
-                self.ticker if self.ticker.endswith("-USD") else f"{self.ticker}-USD"
-            )
+            symbol = self.ticker if self.ticker.endswith("-USD") else f"{self.ticker}-USD"
 
             # Defensive: Fetch a bit more to ensure we have valid periods for ATR
             self.data = yf.download(symbol, period=f"{days}d", progress=False)
 
             if self.data.empty:
-                print(
-                    f"ℹ️ Note: '{symbol}' data not found. Defaulting to raw ticker '{self.ticker}'..."
+                logger.warning(
+                    "Note: '%s' data not found. Defaulting to raw ticker '%s'...",
+                    symbol,
+                    self.ticker,
                 )
                 # Fallback attempt without -USD suffix
                 self.data = yf.download(self.ticker, period=f"{days}d", progress=False)
@@ -46,10 +49,10 @@ class MarketAnalyzer:
             # We catch specific library errors or re-raise
             # If it is already a ValueError (from above), re-raise it directly
             if isinstance(e, ValueError):
-                raise e
-            raise RuntimeError(f"❌ Failed to fetch market data: {str(e)}")
+                raise
+            raise RuntimeError(f"❌ Failed to fetch market data: {str(e)}") from e
 
-    def calculate_metrics(self) -> Dict[str, float]:
+    def calculate_metrics(self) -> dict[str, float]:
         """
         Calculates Volatility, Drift, and ATR.
         """
@@ -57,8 +60,10 @@ class MarketAnalyzer:
             raise ValueError("No data loaded. Call fetch_history() first.")
 
         # Pre-calc validation
-        if "Close" not in self.data.columns:
-            raise ValueError("Malformed data: Missing 'Close' column")
+        required_cols = ["Close", "High", "Low"]
+        for col in required_cols:
+            if col not in self.data.columns:
+                raise ValueError(f"Malformed data: Missing '{col}' column")
 
         # 1. Log Returns
         # Use simple numeric extraction to avoid Series alignment issues

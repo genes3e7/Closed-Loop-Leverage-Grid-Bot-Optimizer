@@ -2,8 +2,9 @@
 Module for fetching real-time exchange data (Fees, Funding, Spread).
 """
 
+from typing import Any
+
 import ccxt
-from typing import Dict, Optional, Any
 
 
 class ExchangeSniffer:
@@ -14,15 +15,15 @@ class ExchangeSniffer:
     def __init__(
         self,
         exchange_id: str,
-        api_key: Optional[str] = None,
-        secret: Optional[str] = None,
+        api_key: str | None = None,
+        secret: str | None = None,
     ):
         self.exchange_id = exchange_id.lower()
         self.api_key = api_key
         self.secret = secret
         self.exchange = self._initialize_exchange()
 
-    def _initialize_exchange(self) -> Optional[Any]:
+    def _initialize_exchange(self) -> Any | None:
         """Initializes the CCXT exchange object safely. Returns None if not found."""
         try:
             exchange_class = getattr(ccxt, self.exchange_id)
@@ -31,13 +32,11 @@ class ExchangeSniffer:
                 config.update({"apiKey": self.api_key, "secret": self.secret})
             return exchange_class(config)
         except AttributeError:
-            print(
-                f"⚠️ Warning: Exchange '{self.exchange_id}' not found in local CCXT library."
-            )
+            print(f"⚠️ Warning: Exchange '{self.exchange_id}' not found in local CCXT library.")
             print("   -> Running in OFFLINE mode (using Binance for Fallback Data).")
             return None
 
-    def get_market_intelligence(self, symbol: str) -> Dict[str, Optional[float]]:
+    def get_market_intelligence(self, symbol: str) -> dict[str, float | None]:
         """
         Fetches all critical cost metrics.
         If offline, tries to fetch Funding/Spread from Binance and returns None for fees.
@@ -72,14 +71,10 @@ class ExchangeSniffer:
                     funding = fallback_ex.fetch_funding_rate(fallback_symbol)
                     metrics["funding_rate_8h"] = funding.get("fundingRate", 0.0001)
 
-                print(
-                    f"   ℹ️ Successfully fetched fallback data from Binance for {fallback_symbol}"
-                )
+                print(f"   ℹ️ Successfully fetched fallback data from Binance for {fallback_symbol}")
 
             except Exception as e:
-                print(
-                    f"   ❌ Fallback to Binance failed ({str(e)}). Using hard defaults."
-                )
+                print(f"   ❌ Fallback to Binance failed ({str(e)}). Using hard defaults.")
 
             # CRITICAL: Set fees to None to signal Controller to ask user
             metrics["maker_fee"] = None
