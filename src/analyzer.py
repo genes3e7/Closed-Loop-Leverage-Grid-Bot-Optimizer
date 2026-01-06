@@ -3,6 +3,7 @@ Module for historical market analysis (Volatility, ATR, Drift).
 """
 
 import logging
+
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -23,9 +24,7 @@ class MarketAnalyzer:
         """Fetches historical data from YFinance with error handling."""
         try:
             # Add 'd' suffix if missing for yfinance crypto format usually
-            symbol = (
-                self.ticker if self.ticker.endswith("-USD") else f"{self.ticker}-USD"
-            )
+            symbol = self.ticker if self.ticker.endswith("-USD") else f"{self.ticker}-USD"
 
             # Defensive: Fetch a bit more to ensure we have valid periods for ATR
             self.data = yf.download(symbol, period=f"{days}d", progress=False)
