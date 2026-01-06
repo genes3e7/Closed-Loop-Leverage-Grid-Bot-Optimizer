@@ -8,20 +8,29 @@ from src.controller import run_analysis
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Closed Loop Grid Bot Optimizer: Calculates safe leverage and grid parameters based on volatility and fees."
+        description=(
+            "Closed Loop Grid Bot Optimizer: Calculates safe leverage and grid parameters "
+            "based on volatility and fees."
+        )
     )
 
     parser.add_argument(
         "ticker",
         type=str,
-        help="The asset symbol (e.g., 'BTC' or 'SOL'). NOTE: If using a specific --exchange, use the pair format (e.g., 'BTC/USDT') to ensure fee sniffing works.",
+        help=(
+            "The asset symbol (e.g., 'BTC' or 'SOL'). NOTE: If using a specific --exchange, "
+            "use the pair format (e.g., 'BTC/USDT') to ensure fee sniffing works."
+        ),
     )
 
     parser.add_argument(
         "--exchange",
         type=str,
         default="binance",
-        help="The exchange ID (ccxt) to sniff fees from. Common: 'binance', 'pionex', 'cryptocom', 'bybit', 'okx'. (default: binance)",
+        help=(
+            "The exchange ID (ccxt) to sniff fees from. Common: 'binance', 'pionex', "
+            "'cryptocom', 'bybit', 'okx'. (default: binance)"
+        ),
     )
 
     parser.add_argument(
@@ -35,13 +44,19 @@ def main():
         "--portfolio",
         type=float,
         default=None,
-        help="Total portfolio size/bankroll. If omitted, calculates the MINIMUM REQUIRED capital.",
+        help=(
+            "Total portfolio size/bankroll. If omitted, calculates the MINIMUM "
+            "REQUIRED capital."
+        ),
     )
 
     parser.add_argument(
         "--neutral",
         action="store_true",
-        help="Force the grid to be Neutral (ignore historical trend/drift). Useful if you expect a flat market.",
+        help=(
+            "Force the grid to be Neutral (ignore historical trend/drift). "
+            "Useful if you expect a flat market."
+        ),
     )
 
     args = parser.parse_args()

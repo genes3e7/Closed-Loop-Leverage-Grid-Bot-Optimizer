@@ -36,7 +36,8 @@ class TestClosedLoopOptimizer:
         """
         # Massive Bullish Drift (+1% daily)
         res_bull = ClosedLoopOptimizer.calculate_bounds(100, 0.05, 0.01, 30)
-        # Massive Bearish Drift (-3% daily) - Needs to be strong to pull upper bound below 100 vs volatility
+        # Massive Bearish Drift (-3% daily)
+        # Needs to be strong to pull upper bound below 100 vs volatility
         res_bear = ClosedLoopOptimizer.calculate_bounds(100, 0.05, -0.03, 30)
 
         assert res_bull["upper_bound"] > 130  # Should be significantly higher

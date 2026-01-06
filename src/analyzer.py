@@ -30,7 +30,8 @@ class MarketAnalyzer:
 
             if self.data.empty:
                 print(
-                    f"ℹ️ Note: '{symbol}' data not found. Defaulting to raw ticker '{self.ticker}'..."
+                    f"ℹ️ Note: '{symbol}' data not found. "
+                    f"Defaulting to raw ticker '{self.ticker}'..."
                 )
                 # Fallback attempt without -USD suffix
                 self.data = yf.download(self.ticker, period=f"{days}d", progress=False)
@@ -47,7 +48,7 @@ class MarketAnalyzer:
             # If it is already a ValueError (from above), re-raise it directly
             if isinstance(e, ValueError):
                 raise e
-            raise RuntimeError(f"❌ Failed to fetch market data: {str(e)}")
+            raise RuntimeError(f"❌ Failed to fetch market data: {str(e)}") from e
 
     def calculate_metrics(self) -> Dict[str, float]:
         """

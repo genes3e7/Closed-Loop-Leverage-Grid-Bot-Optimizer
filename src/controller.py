@@ -21,7 +21,8 @@ def resolve_exchange(exchange_name: str) -> str:
         )
         if matches:
             print(
-                f"⚠️ Warning: Exchange '{exchange_name}' not found. Auto-correcting to: '{matches[0]}'"
+                f"⚠️ Warning: Exchange '{exchange_name}' not found. "
+                f"Auto-correcting to: '{matches[0]}'"
             )
             return matches[0]
 
@@ -72,7 +73,8 @@ def run_analysis(
                     market_intel["taker_fee"] = float(taker_input) / 100
 
                     print(
-                        f"   -> Using Maker: {market_intel['maker_fee']:.4f} | Taker: {market_intel['taker_fee']:.4f}\n"
+                        f"   -> Using Maker: {market_intel['maker_fee']:.4f} | "
+                        f"Taker: {market_intel['taker_fee']:.4f}\n"
                     )
                     break  # Exit loop on success
                 except ValueError:
@@ -113,7 +115,8 @@ def run_analysis(
                 "\n   ⚠️  WARNING: Detected Bearish Drift (Upper Bound < Current Price)."
             )
             print(
-                "   -> 🛡️  Automatically switching to NEUTRAL MODE (Drift = 0) to center the grid."
+                "   -> 🛡️  Automatically switching to NEUTRAL MODE (Drift = 0) "
+                "to center the grid."
             )
 
             # Force neutral drift
