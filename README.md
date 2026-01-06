@@ -1,4 +1,4 @@
-![Python Version](https://img.shields.io/badge/python-3.10_to_3.13-blue)
+![Python Version](https://img.shields.io/badge/python-3.12_to_3.13-blue)
 # **Closed Loop Leverage Grid Bot Optimizer**
 
 **A Defensive, Quantitative Engine for Deriving Grid Bot Parameters.**
