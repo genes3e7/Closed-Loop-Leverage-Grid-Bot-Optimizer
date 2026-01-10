@@ -52,7 +52,7 @@ multidict==6.7.0
     #   yarl
 multitasking==0.0.12
     # via yfinance
-numpy==2.4.0
+numpy==2.4.1
     # via
     #   -r requirements.in
     #   pandas
