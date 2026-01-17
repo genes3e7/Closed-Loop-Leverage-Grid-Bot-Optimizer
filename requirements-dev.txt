@@ -23,7 +23,7 @@ pyinstaller-hooks-contrib==2025.11
     # via pyinstaller
 pytest==9.0.2
     # via -r requirements-dev.in
-ruff==0.14.10
+ruff==0.14.13
     # via -r requirements-dev.in
 
 # The following packages are considered to be unsafe in a requirements file:
