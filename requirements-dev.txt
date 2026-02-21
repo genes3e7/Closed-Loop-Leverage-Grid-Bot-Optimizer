@@ -17,9 +17,9 @@ pluggy==1.6.0
     # via pytest
 pygments==2.19.2
     # via pytest
-pyinstaller==6.17.0
+pyinstaller==6.19.0
     # via -r requirements-dev.in
-pyinstaller-hooks-contrib==2025.11
+pyinstaller-hooks-contrib==2026.1
     # via pyinstaller
 pytest==9.0.2
     # via -r requirements-dev.in
