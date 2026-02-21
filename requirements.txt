@@ -104,7 +104,7 @@ yarl==1.22.0
     # via
     #   aiohttp
     #   ccxt
-yfinance==1.0
+yfinance==1.2.0
     # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
