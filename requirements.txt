@@ -52,12 +52,12 @@ multidict==6.7.0
     #   yarl
 multitasking==0.0.12
     # via yfinance
-numpy==2.4.0
+numpy==2.4.4
     # via
     #   -r requirements.in
     #   pandas
     #   yfinance
-pandas==2.3.3
+pandas==3.0.2
     # via
     #   -r requirements.in
     #   yfinance
@@ -78,10 +78,8 @@ pycparser==2.23
 python-dateutil==2.9.0.post0
     # via pandas
 pytz==2025.2
-    # via
-    #   pandas
-    #   yfinance
-requests==2.33.0
+    # via yfinance
+requests==2.32.5
     # via
     #   ccxt
     #   yfinance
@@ -94,8 +92,6 @@ typing-extensions==4.15.0
     #   aiosignal
     #   beautifulsoup4
     #   ccxt
-tzdata==2025.3
-    # via pandas
 urllib3==2.6.3
     # via requests
 websockets==15.0.1
