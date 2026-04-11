@@ -15,15 +15,17 @@ packaging==25.0
     #   pytest
 pluggy==1.6.0
     # via pytest
-pygments==2.19.2
-    # via pytest
+pygments==2.20.0
+    # via
+    #   -c requirements.txt
+    #   pytest
 pyinstaller==6.19.0
     # via -r requirements-dev.in
 pyinstaller-hooks-contrib==2026.1
     # via pyinstaller
-pytest==9.0.2
+pytest==9.0.3
     # via -r requirements-dev.in
-ruff==0.15.9
+ruff==0.15.10
     # via -r requirements-dev.in
 
 # The following packages are considered to be unsafe in a requirements file:
