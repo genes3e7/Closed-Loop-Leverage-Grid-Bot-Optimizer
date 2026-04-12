@@ -16,7 +16,7 @@ attrs==25.4.0
     # via aiohttp
 beautifulsoup4==4.14.3
     # via yfinance
-ccxt==4.5.47
+ccxt==4.5.48
     # via -r requirements.in
 certifi==2025.11.12
     # via
@@ -34,7 +34,7 @@ coincurve==21.0.0
     # via ccxt
 cryptography==46.0.7
     # via ccxt
-curl-cffi==0.13.0
+curl-cffi==0.15.0
     # via yfinance
 frozendict==2.4.7
     # via yfinance
@@ -46,6 +46,10 @@ idna==3.11
     # via
     #   requests
     #   yarl
+markdown-it-py==4.0.0
+    # via rich
+mdurl==0.1.2
+    # via markdown-it-py
 multidict==6.7.0
     # via
     #   aiohttp
@@ -75,6 +79,8 @@ pycares==4.11.0
     # via aiodns
 pycparser==2.23
     # via cffi
+pygments==2.20.0
+    # via rich
 python-dateutil==2.9.0.post0
     # via pandas
 pytz==2025.2
@@ -83,6 +89,8 @@ requests==2.33.0
     # via
     #   ccxt
     #   yfinance
+rich==14.3.4
+    # via curl-cffi
 six==1.17.0
     # via python-dateutil
 soupsieve==2.8.1
@@ -100,7 +108,7 @@ yarl==1.22.0
     # via
     #   aiohttp
     #   ccxt
-yfinance==1.2.0
+yfinance==1.2.1
     # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
