@@ -19,13 +19,13 @@ pygments==2.20.0
     # via
     #   -c requirements.txt
     #   pytest
-pyinstaller==6.19.0
+pyinstaller==6.20.0
     # via -r requirements-dev.in
-pyinstaller-hooks-contrib==2026.1
+pyinstaller-hooks-contrib==2026.4
     # via pyinstaller
 pytest==9.0.3
     # via -r requirements-dev.in
-ruff==0.15.11
+ruff==0.15.12
     # via -r requirements-dev.in
 
 # The following packages are considered to be unsafe in a requirements file:
