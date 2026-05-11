@@ -100,7 +100,7 @@ typing-extensions==4.15.0
     #   aiosignal
     #   beautifulsoup4
     #   ccxt
-urllib3==2.6.3
+urllib3==2.7.0
     # via requests
 websockets==15.0.1
     # via yfinance
