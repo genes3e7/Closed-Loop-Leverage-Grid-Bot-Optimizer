@@ -16,7 +16,7 @@ attrs==25.4.0
     # via aiohttp
 beautifulsoup4==4.14.3
     # via yfinance
-ccxt==4.5.59
+ccxt==4.5.64
     # via -r requirements.in
 certifi==2025.11.12
     # via
@@ -54,7 +54,7 @@ multidict==6.7.0
     #   yarl
 multitasking==0.0.12
     # via yfinance
-numpy==2.5.0
+numpy==2.5.1
     # via
     #   -r requirements.in
     #   pandas
@@ -107,7 +107,7 @@ yarl==1.22.0
     # via
     #   aiohttp
     #   ccxt
-yfinance==1.4.1
+yfinance==1.5.1
     # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
