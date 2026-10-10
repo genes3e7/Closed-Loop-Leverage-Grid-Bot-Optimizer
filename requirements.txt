@@ -4,32 +4,42 @@
 #
 #    pip-compile --no-index --output-file=requirements.txt requirements.in
 #
-aiodns==3.6.1
-    # via ccxt
-aiohappyeyeballs==2.6.1
-    # via aiohttp
+aiohappyeyeballs==2.7.1
+    # via
+    #   aiohttp
+    #   ccxt
 aiohttp==3.14.3
+    # via
+    #   aiohttp-fast-zlib
+    #   ccxt
+aiohttp-fast-zlib==0.3.0
     # via ccxt
 aiosignal==1.4.0
-    # via aiohttp
-attrs==25.4.0
-    # via aiohttp
+    # via
+    #   aiohttp
+    #   ccxt
+attrs==26.1.0
+    # via
+    #   aiohttp
+    #   ccxt
 beautifulsoup4==4.14.3
     # via yfinance
-ccxt==4.5.59
+ccxt==4.5.85
     # via -r requirements.in
-certifi==2025.11.12
+certifi==2026.6.17
     # via
     #   ccxt
     #   curl-cffi
     #   requests
 cffi==2.0.0
     # via
+    #   ccxt
     #   cryptography
     #   curl-cffi
-    #   pycares
-charset-normalizer==3.4.4
-    # via requests
+charset-normalizer==3.4.7
+    # via
+    #   ccxt
+    #   requests
 coincurve==21.0.0
     # via ccxt
 cryptography==50.0.0
@@ -40,26 +50,33 @@ frozenlist==1.8.0
     # via
     #   aiohttp
     #   aiosignal
-idna==3.15
+    #   ccxt
+idna==3.18
     # via
+    #   ccxt
     #   requests
     #   yarl
+lxml==6.1.3
+    # via yfinance
 markdown-it-py==4.0.0
     # via rich
 mdurl==0.1.2
     # via markdown-it-py
-multidict==6.9.1
+multidict==6.7.1
     # via
     #   aiohttp
+    #   ccxt
     #   yarl
 multitasking==0.0.12
     # via yfinance
-numpy==2.5.2
+numpy==2.5.3
     # via
     #   -r requirements.in
     #   pandas
     #   yfinance
-pandas==3.0.5
+orjson==3.11.9
+    # via ccxt
+pandas==3.0.6
     # via
     #   -r requirements.in
     #   yfinance
@@ -67,16 +84,17 @@ peewee==3.18.3
     # via yfinance
 platformdirs==4.5.1
     # via yfinance
-propcache==0.4.1
+propcache==0.5.2
     # via
     #   aiohttp
+    #   ccxt
     #   yarl
 protobuf==6.33.5
     # via yfinance
-pycares==4.11.0
-    # via aiodns
-pycparser==2.23
-    # via cffi
+pycparser==3.0
+    # via
+    #   ccxt
+    #   cffi
 pygments==2.20.0
     # via rich
 python-dateutil==2.9.0.post0
@@ -93,22 +111,25 @@ six==1.17.0
     # via python-dateutil
 soupsieve==2.10
     # via beautifulsoup4
-typing-extensions==4.15.0
+typing-extensions==4.16.0
     # via
     #   aiohttp
     #   aiosignal
     #   beautifulsoup4
     #   ccxt
 urllib3==2.8.0
-    # via requests
+    # via
+    #   ccxt
+    #   requests
+uvloop==0.22.1
+    # via ccxt
 websockets==15.0.1
     # via yfinance
 yarl==1.22.0
     # via
     #   aiohttp
     #   ccxt
-yfinance==1.5.2
+yfinance==1.7.0
     # via -r requirements.in
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
+zlib-ng==1.0.0
+    # via ccxt
